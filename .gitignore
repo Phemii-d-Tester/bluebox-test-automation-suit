@@ -1,0 +1,28 @@
+# --- Dependencies ---
+node_modules/
+
+# --- Secrets / local config (NEVER commit) ---
+.env
+.env.*
+!.env.example
+.auth/
+.claude/
+
+# --- Playwright artifacts ---
+test-results/
+playwright-report/
+blob-report/
+report/
+playwright/.cache/
+
+# --- Logs & OS files ---
+*.log
+.DS_Store
+Thumbs.db
+
+# --- Other test-suite projects kept out of this repo (own secrets / sensitive
+#     findings; push separately after sanitisation) ---
+/api-testing/
+/performance-testing/
+/security-assessment/
+/components/

@@ -1,0 +1,49 @@
+name: Playwright E2E (Phase 1)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch: # allow manual runs
+
+jobs:
+  e2e:
+    name: user-app regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    env:
+      # Provided via repository Settings → Secrets and variables → Actions.
+      # NEVER hardcode credentials here.
+      USER_APP_URL: ${{ secrets.USER_APP_URL }}
+      BLUEBOX_EMAIL: ${{ secrets.BLUEBOX_EMAIL }}
+      BLUEBOX_PASSWORD: ${{ secrets.BLUEBOX_PASSWORD }}
+      MAILPIT_URL: ${{ secrets.MAILPIT_URL }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browser (chromium)
+        run: npx playwright install --with-deps chromium
+
+      - name: Run regression suite (excludes @publish + @email)
+        run: npm test
+
+      - name: Upload Playwright HTML report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14

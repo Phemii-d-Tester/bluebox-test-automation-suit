@@ -1,0 +1,21 @@
+{
+  "name": "bluebox-e2e",
+  "version": "1.0.0",
+  "description": "BlueBox end-to-end regression suite (Playwright, JavaScript, POM)",
+  "type": "commonjs",
+  "scripts": {
+    "test": "playwright test --grep-invert \"@publish|@email\"",
+    "test:all": "playwright test",
+    "test:auth": "playwright test --project=user-app-auth --grep-invert \"@publish|@email\"",
+    "test:user": "playwright test --project=user-app --grep-invert \"@publish|@email\"",
+    "test:smoke": "playwright test --grep @smoke --grep-invert \"@publish|@email\"",
+    "test:publish": "playwright test --grep @publish",
+    "test:email": "playwright test --grep @email",
+    "test:headed": "playwright test --headed --grep-invert \"@publish|@email\"",
+    "report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.48.0",
+    "dotenv": "^16.4.5"
+  }
+}
