@@ -18,7 +18,8 @@ class CreateEventPage {
     this.venueNameInput = page.getByRole('textbox', { name: 'Enter venue name' });
     this.addressInput = page.getByRole('combobox', { name: /Search for a venue or enter address/ });
     this.capacityInput = this.main.getByRole('spinbutton');
-    this.privateToggle = page.getByRole('switch', { name: 'Private event' });
+    // NOTE: the create form no longer has a "Private event" switch — event privacy
+    // is now controlled post-creation via the "Go public" toggle on the event page.
     this.coverImageButton = page.getByRole('button', { name: /Cover Image/ });
     this.createButton = page.getByRole('button', { name: 'Create Event' });
 

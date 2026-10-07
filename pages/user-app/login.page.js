@@ -48,10 +48,17 @@ class LoginPage {
     await this.emailInput.fill(email);
     await this.passwordInput.fill(password);
     await this.signInButton.click();
-    // If the form submitted before hydration, the URL becomes /login?email=…&password=…
-    // (native GET). Detect that, re-hydrate, and retry once.
-    await this.page.waitForTimeout(700);
-    if (/\/login\?/.test(this.page.url())) {
+    // Two cold-start races are possible on this Azure app:
+    //  (a) native GET submit before hydration → URL becomes /login?email=…&password=…
+    //  (b) the click lands before the submit handler is wired → a silent no-op that
+    //      leaves us on a bare /login with no redirect and no error alert.
+    // Settle, then if we're still on /login (either case) and there's no auth error
+    // shown, re-hydrate and submit once more. A genuine bad-credential response shows
+    // the error alert and is left untouched for the spec to assert on.
+    await this.page.waitForTimeout(1200);
+    const stuckOnLogin = /\/login(\?|$)/.test(this.page.url());
+    const hasError = (await this.errorAlert.count()) > 0;
+    if (stuckOnLogin && !hasError) {
       await this.goto();
       await this.emailInput.fill(email);
       await this.passwordInput.fill(password);

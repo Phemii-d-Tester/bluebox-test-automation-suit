@@ -22,7 +22,6 @@ test.describe('Create Event @create-event @regression', () => {
     await expect(wizard.timezone).toBeVisible();
     await expect(wizard.venueNameInput).toBeVisible();
     await expect(wizard.capacityInput).toBeVisible();
-    await expect(wizard.privateToggle).toBeVisible();
     await expect(wizard.createButton).toBeVisible();
   });
 
@@ -36,10 +35,6 @@ test.describe('Create Event @create-event @regression', () => {
   test('should update the live preview as the name is typed', async () => {
     await wizard.fill({ name: 'QA Preview Event' });
     await expect(wizard.previewTitle).toHaveText('QA Preview Event');
-  });
-
-  test('should default the Private event toggle on', async () => {
-    await expect(wizard.privateToggle).toBeChecked();
   });
 
   test('should require a Location before creating', async ({ page }) => {
