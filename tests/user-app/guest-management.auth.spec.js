@@ -39,7 +39,8 @@ test.describe('Guest management @guests @regression', () => {
     test('should open with First name, Email and a disabled Save until required filled @smoke', async () => {
       await expect(guests.firstName).toBeVisible();
       await expect(guests.email).toBeVisible();
-      await expect(guests.sendInviteEmail).toBeChecked();
+      // "Send invite email" now defaults OFF (previously on).
+      await expect(guests.sendInviteEmail).not.toBeChecked();
       await expect(guests.saveGuestButton).toBeDisabled();
       await guests.fillGuest({ firstName: 'QA', email: `qa-${uniqueSuffix()}@example.com` });
       await expect(guests.saveGuestButton).toBeEnabled();

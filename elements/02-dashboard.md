@@ -9,12 +9,15 @@ Authenticated planner view. Account under test: the planner test account (Free P
 | Dashboard | `getByRole('link', { name: 'Dashboard' })` → `/home` |
 | Events | `getByRole('link', { name: 'Events' })` → `/events` |
 | Seat Setup | `getByRole('link', { name: 'Seat Setup' })` → `/seat-setup` |
-| Analytics | text `Analytics` (nav item) |
-| Settings | text `Settings` |
+| Food & Drinks | `getByRole('link', { name: /Food & Drinks/ })` → `/food-drinks` (shows a "Locked" badge on the Free plan; the module itself is reachable per-event) |
+| Analytics | `getByRole('link', { name: 'Analytics' })` → `/analytics` |
+| Settings | `getByRole('link', { name: 'Settings' })` → `/settings` |
 | Log out | `banner` → `getByRole('button', { name: 'Log out' })` |
 | Notifications | `getByRole('button', { name: 'Notifications' })` (badge count) |
 
-> Nav no longer lists "Food & Drinks" (Phase 2). 
+> The sidebar now lists **Food & Drinks** and **Analytics**. The Food & Drinks nav
+> entry carries a "Locked" badge on the Free plan, but the module is reachable per
+> event (see `07-food-drinks.md`).
 
 ## Dashboard stats (main)
 | Element | Locator |

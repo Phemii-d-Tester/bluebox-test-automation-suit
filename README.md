@@ -4,10 +4,11 @@ End‑to‑end functional regression suite for **BlueBox**, an event‑managemen
 Built with **Playwright** (JavaScript) using the **Page Object Model**, targeting the
 `user-app` test environment.
 
-> **Phase 1** covers Authentication, Dashboard, Event creation (guests, seating,
-> activation) and Guest RSVP. Phase‑2 flows (menu/food, single‑event view, edit event,
-> guest groups, check‑in kiosk, etc.) are parked under [`archive/`](archive/) and are
-> not run by the suite.
+> Covers Authentication, Dashboard, Event creation, Guests, Seating layout, event
+> activation, Guest RSVP, and the **Food & Drink / Kitchen** module (menu editor,
+> orders, dietary requests, live kitchen board). Remaining Phase‑2 flows (single‑event
+> view, edit event, guest groups, check‑in kiosk, etc.) are parked under
+> [`archive/`](archive/) and are not run by the suite.
 
 ---
 
@@ -87,7 +88,7 @@ npx playwright test --project=user-app-auth tests/user-app/seat-setup.auth.spec.
 | `@regression` | Full regression |
 | `@publish` | **Destructive** — persists data (create/add/assign/RSVP). Excluded by default. |
 | `@email` | Needs an email inbox (Mailpit). Excluded by default. |
-| module tags | `@auth`, `@dashboard`, `@create-event`, `@guests`, `@seat-setup`, `@activate`, `@rsvp` |
+| module tags | `@auth`, `@dashboard`, `@create-event`, `@guests`, `@seat-setup`, `@activate`, `@rsvp`, `@food-drinks` |
 
 ## Email / OTP testing
 Signup verification and password reset are email‑driven. See:
@@ -106,8 +107,13 @@ The HTML report is uploaded as a build artifact.
 - **CSV guest import** — works manually, but the drop‑zone widget accepts no Playwright
   upload path (it reads via `webkitGetAsEntry`); the import **dialog** is covered. Fix:
   an import API endpoint.
-- **Manual drag‑assign** in the floor plan — no accessible seat/table drop target
-  (@dnd‑kit pixel‑drag only). **Auto‑Assign** is covered.
+- **Full guest RSVP submission** — a logged‑out guest cannot reach a non‑public
+  event's invite, and opening an event on the shared `-test` env fires real
+  invitations. The invite landing + `/join` gate are covered in host preview; full
+  submission on an opened event is left as a documented opt‑in step.
+- **Food & Drink menu creation** (`@publish`) — a created menu category has no
+  automated delete affordance, so the create test leaves the category behind (like
+  the guest `@publish` test). The read‑only module surfaces are covered by default.
 - **Signup end‑to‑end** — an invisible reCAPTCHA blocks headless account creation; the
   form and validation are covered.
 - **Email flows** (`@email`) run once the backend is wired to Mailpit.

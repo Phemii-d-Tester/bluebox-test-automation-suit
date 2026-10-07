@@ -1,30 +1,49 @@
-# Seat Setup / Floor Plan — element reference
+# Seating layout — element reference
 
-## Seat Setup entry — `/seat-setup/<id>`
+> **Redesigned.** The old free-form Floor Plan editor (Create floor plan → Add
+> Table / Add Zone dialogs, Auto-Assign, draggable guests) has been replaced by a
+> **template-based Seating layout editor**. Pick a layout template, place Stage /
+> Door / Restroom via position menus, assign a seating category per table, then
+> Save layout.
+
+## Seating layout entry — `/seat-setup/<id>`
 | Element | Locator |
 |---|---|
-| Back | `getByRole('link', { name: 'Back to seat setup' })` → `/seat-setup` |
-| Heading | `getByRole('heading', { level: 1, name: 'Seat Setup' })` (subtitle `<event> · Floor Plan`) |
-| Preview | `getByRole('link', { name: 'Preview' })` → `/events/<id>?tab=Seating` |
-| Empty state | `getByRole('heading', { level: 3, name: 'No Seat Setup Yet' })` + `getByRole('button', { name: 'Create floor plan' })` |
+| Heading | `getByRole('heading', { level: 1, name: 'Seating layout' })` |
+| Back to Event | `getByRole('link', { name: /Back to Event/ })` → `/events/<id>?tab=Seating` |
+| Preview | `main.getByRole('button', { name: 'Preview' })` |
+| Save layout | `main.getByRole('button', { name: 'Save layout' })` |
 
-## Floor plan editor (after Create floor plan)
+## Element placement (position menus)
+Each button opens a menu of `menuitemradio` slots: `No Stage` (default, checked),
+`Top Left`, `Top Center`, `Top Right`, `Right Top/Center/Bottom`, `Bottom
+Right/Center/Left`, `Left Bottom/Center/Top`. A slot already taken by another
+element is disabled.
 | Element | Locator |
 |---|---|
-| Auto-Assign | `getByRole('button', { name: 'Auto-Assign', exact: true })` |
-| Add Table | `getByRole('button', { name: 'Add Table' })` |
-| More table options | `getByRole('button', { name: 'More table options' })` |
-| Add Zone | `getByRole('button', { name: 'Add Zone' })` |
-| Stage position | `getByRole('button', { name: 'Stage position' })` (label `Add Stage`) |
-| Door position | `getByRole('button', { name: 'Door position' })` (label `Door · Bottom`) |
-| Restroom position | `getByRole('button', { name: 'Restroom position' })` (label `Add Restroom`) |
-| Filters | `getByRole('button', { name: 'Groups' })`, `{ name: 'Dietary' }`, `{ name: 'Zone Servers' }`(disabled) |
-| Zoom | `getByRole('button', { name: 'Zoom in' })` / `'Zoom out'` ; `'Enter fullscreen'` |
-| Unassigned panel | `main.getByRole('complementary')` → `getByText('Unassigned Guests')` + count, `getByRole('searchbox')`, draggable guest buttons `[aria-roledescription="draggable"]` |
-| Tables list | complementary `getByText('Tables')` + rows `#1 T1 6/8` |
+| Stage position | `main.getByRole('button', { name: 'Stage position' })` (label → `Stage · <slot>` once placed) |
+| Door position | `main.getByRole('button', { name: 'Door position' })` (label → `Door · <slot>`) |
+| Restroom position | `main.getByRole('button', { name: 'Restroom position' })` |
+| Position slot | `getByRole('menuitemradio', { name: '<slot>', exact: true })` |
+
+## Templates panel (left `complementary`)
+| Element | Locator |
+|---|---|
+| Heading | `complementary.getByRole('heading', { name: 'Templates' })` |
+| Template | `complementary.getByRole('button', { name: /Banquet · 4×4 | Banquet · 3×3 | Wedding · Reception | Conference · Classroom/ })` |
+
+## Canvas (after a template is applied)
+| Element | Locator |
+|---|---|
+| Per-table category | `main.getByRole('button', { name: 'Assign Category' })` (one per table) |
+| Stage / Door markers | `main.getByText('Stage')` / `main.getByText('Main Door')` |
+| Zoom / fit | `main.getByRole('button', { name: 'Fit to screen' })`, `−` / `+` |
+| Snap to grid | `main.getByRole('switch')` (checked) |
+| Undo / Redo | `main.getByRole('button', { name: 'Undo' / 'Redo' })` |
 | Assigned status | `getByText(/\d+ \/ \d+ Assigned/)` |
 
 ## Activate / Deactivate (on event detail `/events/<id>`)
-- Active event shows `getByRole('button', { name: 'Deactivate' })` (aria `[pressed]`).
-- Clicking toggles to **Activate**. The event card / "Event Page" shows `Activated` vs inactive status.
-- Deactivating gates public invite/RSVP availability.
+- Active event shows `getByRole('button', { name: 'Deactivate' })`.
+- A brand-new inactive event shows **Go public**; a previously-active one shows **Re-activate**.
+- Going public gates public invite/RSVP availability (`/join/<token>` shows
+  "Event not open yet" until the host opens the event).

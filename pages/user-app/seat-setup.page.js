@@ -1,4 +1,7 @@
-// Page Object for Seat Setup / Floor Plan editor (user-app: /seat-setup/<id>).
+// Page Object for the Seating layout editor (user-app: /seat-setup/<id>).
+// The editor was redesigned into a TEMPLATE-based layout tool: pick a layout
+// template (Banquet / Wedding / Conference), place Stage / Door / Restroom via
+// position menus, assign a seating category per table, then Save layout.
 // Verified against the live -test DOM.
 
 class SeatSetupPage {
@@ -8,64 +11,42 @@ class SeatSetupPage {
     this.main = page.getByRole('main');
     this.sidebar = this.main.getByRole('complementary');
 
-    this.heading = page.getByRole('heading', { level: 1, name: 'Seat Setup' });
-    this.backLink = page.getByRole('link', { name: 'Back to seat setup' });
-    this.previewLink = page.getByRole('link', { name: 'Preview' });
+    this.heading = page.getByRole('heading', { level: 1, name: 'Seating layout' });
+    this.backToEventLink = page.getByRole('link', { name: /Back to Event/ });
 
-    // Empty state
-    this.emptyHeading = page.getByRole('heading', { level: 3, name: 'No Seat Setup Yet' });
-    this.createFloorPlanButton = page.getByRole('button', { name: 'Create floor plan' });
-
-    // Editor toolbar
-    this.autoAssignButton = this.main.getByRole('button', { name: 'Auto-Assign', exact: true });
-    this.addTableButton = this.main.getByRole('button', { name: 'Add Table' });
-    this.addZoneButton = this.main.getByRole('button', { name: 'Add Zone' });
+    // Element placement — each opens a position menu of menuitemradio slots.
     this.stagePositionButton = this.main.getByRole('button', { name: 'Stage position' });
     this.doorPositionButton = this.main.getByRole('button', { name: 'Door position' });
     this.restroomPositionButton = this.main.getByRole('button', { name: 'Restroom position' });
-    this.groupsFilter = this.main.getByRole('button', { name: 'Groups' });
-    this.dietaryFilter = this.main.getByRole('button', { name: 'Dietary' });
-    this.zoomInButton = this.main.getByRole('button', { name: 'Zoom in' });
 
-    // Left panel
-    this.unassignedHeading = this.sidebar.getByText('Unassigned Guests');
-    this.guestSearch = this.sidebar.getByRole('searchbox');
-    this.tablesLabel = this.sidebar.getByText('Tables', { exact: true });
-    this.unassignedGuestCards = this.sidebar.locator('[aria-roledescription="draggable"]');
+    this.previewButton = this.main.getByRole('button', { name: 'Preview' });
+    this.saveLayoutButton = this.main.getByRole('button', { name: 'Save layout' });
 
-    // Canvas markers
-    this.stageMarker = this.main.getByRole('img', { name: /Stage/ });
-    this.doorMarker = this.main.getByRole('img', { name: /Door/ });
-    this.restroomMarker = this.main.getByRole('img', { name: /Restroom/ });
+    // Templates panel (left)
+    this.templatesHeading = this.sidebar.getByRole('heading', { name: 'Templates' });
 
-    // New Zone modal
-    this.zoneDialog = page.getByRole('dialog', { name: 'New Zone' });
-    this.zoneNameInput = this.zoneDialog.getByRole('textbox', { name: 'Zone Name' });
-    this.createZoneButton = this.zoneDialog.getByRole('button', { name: 'Create Zone' });
-    this.cancelZoneButton = this.zoneDialog.getByRole('button', { name: 'Cancel' });
+    // Per-table category assignment (one "Assign Category" per table in the template).
+    this.assignCategoryButtons = this.main.getByRole('button', { name: 'Assign Category' });
 
-    // Add Table modal
-    this.tableDialog = page.getByRole('dialog', { name: 'Add Table' });
-    this.tableZoneSelect = this.tableDialog.getByRole('combobox');
-    this.tableNumber = this.tableDialog.getByRole('spinbutton', { name: 'Table #' });
-    this.tableCapacity = this.tableDialog.getByRole('spinbutton', { name: 'Capacity' });
-    this.tableNameInput = this.tableDialog.getByRole('textbox', { name: 'Name (optional)' });
-    this.addTableSubmit = this.tableDialog.getByRole('button', { name: 'Add Table' });
+    // Canvas controls
+    this.fitToScreenButton = this.main.getByRole('button', { name: 'Fit to screen' });
+    this.undoButton = this.main.getByRole('button', { name: 'Undo' });
+    this.redoButton = this.main.getByRole('button', { name: 'Redo' });
+    this.snapToGridSwitch = this.main.getByRole('switch');
+
+    // Canvas markers (appear once a template / positions are applied)
+    this.stageMarker = this.main.getByText('Stage', { exact: true });
+    this.doorMarker = this.main.getByText('Main Door', { exact: true });
   }
 
-  /** A position slot in an open Stage/Door/Restroom position menu. */
+  /** A slot in an open Stage/Door/Restroom position menu. */
   positionOption(name) {
     return this.page.getByRole('menuitemradio', { name, exact: true });
   }
 
-  /** A table-shape button inside the Add Table modal. */
-  tableShape(name) {
-    return this.tableDialog.getByRole('button', { name, exact: true });
-  }
-
-  /** Left-panel table rows (each shows "#n Name x/y"). */
-  tableRow(text) {
-    return this.sidebar.getByText(text);
+  /** A layout template button in the left panel (matched by its label text). */
+  templateButton(name) {
+    return this.sidebar.getByRole('button', { name: new RegExp(name) });
   }
 
   async goto(eventId) {
@@ -74,13 +55,16 @@ class SeatSetupPage {
     await this.heading.waitFor({ timeout: 30_000 });
   }
 
-  /** Open the editor (creates a floor plan if none exists yet). */
-  async openEditor(eventId) {
-    await this.goto(eventId);
-    if (await this.createFloorPlanButton.count()) {
-      await this.createFloorPlanButton.click();
-      await this.addTableButton.waitFor({ timeout: 20_000 });
-    }
+  async selectTemplate(name) {
+    await this.templateButton(name).click();
+    await this.page.waitForTimeout(1500);
+  }
+
+  /** Open a position menu and choose a slot. */
+  async placeElement(button, slot) {
+    await button.click();
+    await this.positionOption(slot).click();
+    await this.page.waitForTimeout(600);
   }
 }
 
